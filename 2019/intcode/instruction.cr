@@ -1,14 +1,20 @@
 enum Opcode
-  Add    =  1
-  Mult   =  2
-  Input  =  3
-  Output =  4
-  Exit   = 99
+  Add       =  1
+  Mult      =  2
+  Input     =  3
+  Output    =  4
+  JumpTrue  =  5
+  JumpFalse =  6
+  LessThan  =  7
+  Equal     =  8
+  Exit      = 99
 
   def size : Int
     case self
-    when Add, Mult
+    when Add, Mult, LessThan, Equal
       4
+    when JumpTrue, JumpFalse
+      3
     when Input, Output
       2
     when Exit
@@ -27,7 +33,7 @@ end
 # Contains a relative offset to advance the pointer,
 # or an absolute instruction number to jump to.
 # If the jump is -1, program will exit
-alias PointerResult = { adv: Int32, jmp: Int32 }
+alias PointerResult = {adv: Int32, jmp: Int32}
 
 class Instruction
   @opcode : Opcode
@@ -97,14 +103,30 @@ class Instruction
     when Opcode::Output
       puts "setting output #{self[0]}"
       @program << self[0]
+    when Opcode::JumpTrue
+      return {adv: 0, jmp: self[1]} if self[0] != 0
+    when Opcode::JumpFalse
+      return {adv: 0, jmp: self[1]} if self[0] == 0
+    when Opcode::LessThan
+      self[2] = if self[0] < self[1]
+                  1
+                else
+                  0
+                end
+    when Opcode::Equal
+      self[2] = if self[0] == self[1]
+                  1
+                else
+                  0
+                end
     when Opcode::Exit
       puts "exiting"
-      return { adv: 0, jmp: -1 }
+      return {adv: 0, jmp: -1}
     else
       raise "unknown opcode #{@opcode}"
     end
 
     # For most instructions, advance by the instruction size
-    { adv: @opcode.size, jmp: 0 }
+    {adv: @opcode.size, jmp: 0}
   end
 end
