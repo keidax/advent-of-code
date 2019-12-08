@@ -56,8 +56,6 @@ class Instruction
     @parameter_modes = modes.to_a.reverse # Reverse to match indexing
 
     @data = @program[@position + 1, data_size]
-
-    pp self
   end
 
   def [](index : Int) : Int
@@ -99,10 +97,10 @@ class Instruction
       self[2] = self[0] * self[1]
     when Opcode::Input
       puts "getting input"
-      self[0] = @program.get_input
+      self[0] = @program.input.receive
     when Opcode::Output
       puts "setting output #{self[0]}"
-      @program << self[0]
+      @program.output.send(self[0])
     when Opcode::JumpTrue
       return {adv: 0, jmp: self[1]} if self[0] != 0
     when Opcode::JumpFalse
