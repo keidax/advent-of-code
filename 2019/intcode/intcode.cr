@@ -4,7 +4,9 @@ class Intcode
   @program : Array(Int64)
   getter input : Channel(Int64)
   getter output = Channel(Int64).new(5)
+  getter relative_base = 0
 
+  property verbose = false
 
   delegate :<<, to: @output
   delegate :[], :[]=, to: @program
@@ -55,5 +57,13 @@ class Intcode
     else
       result[:jmp]
     end
+  end
+
+  def adjust_relative_base(offset)
+    @relative_base += offset
+  end
+
+  def log(str : String)
+    puts str if @verbose
   end
 end

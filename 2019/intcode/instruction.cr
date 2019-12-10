@@ -7,6 +7,7 @@ enum Opcode
   JumpFalse =  6
   LessThan  =  7
   Equal     =  8
+  RelBase   =  9
   Exit      = 99
 
   def size : Int
@@ -15,7 +16,7 @@ enum Opcode
       4
     when JumpTrue, JumpFalse
       3
-    when Input, Output
+    when Input, Output, RelBase
       2
     when Exit
       1
@@ -28,6 +29,7 @@ end
 enum ParamMode
   Position  = 0
   Immediate = 1
+  Relative  = 2
 end
 
 # Contains a relative offset to advance the pointer,
@@ -43,6 +45,7 @@ class Instruction
   @program : Intcode
 
   delegate size, to: @opcode
+  delegate log, to: @program
 
   def initialize(@program, @position)
     instruction = @program[@position]
@@ -64,9 +67,14 @@ class Instruction
 
     case mode
     when ParamMode::Position
+      log "    pos #{val} : #{@program[val]}"
       @program[val]
     when ParamMode::Immediate
+      log "    imm : #{val}"
       val
+    when ParamMode::Relative
+      log "    rel #{val} : #{@program[@program.relative_base + val]}"
+      @program[@program.relative_base + val]
     else
       raise "unknown param mode #{mode}"
     end
@@ -78,9 +86,14 @@ class Instruction
     case mode
     when ParamMode::Position
       pos = @data[index]
+      log "    pos #{pos} = #{value}"
       @program[pos] = value
     when ParamMode::Immediate
       raise "can't write to an immediate parameter"
+    when ParamMode::Relative
+      off = @data[index]
+      log "    rel #{off} = #{value}"
+      @program[@program.relative_base + off] = value
     else
       raise "unknown param mode #{mode}"
     end
@@ -90,35 +103,42 @@ class Instruction
   def run : PointerResult
     case @opcode
     when Opcode::Add
-      puts "adding"
+      log "adding"
       self[2] = self[0] + self[1]
     when Opcode::Mult
-      puts "multiplying"
+      log "multiplying"
       self[2] = self[0] * self[1]
     when Opcode::Input
-      puts "getting input"
+      log "getting input"
       self[0] = @program.input.receive
     when Opcode::Output
-      puts "setting output #{self[0]}"
+      log "setting output #{self[0]}"
       @program.output.send(self[0])
     when Opcode::JumpTrue
+      log "jump if true"
       return {adv: 0_i64, jmp: self[1]} if self[0] != 0_i64
     when Opcode::JumpFalse
+      log "jump if false"
       return {adv: 0_i64, jmp: self[1]} if self[0] == 0_i64
     when Opcode::LessThan
+      log "setting less than"
       self[2] = if self[0] < self[1]
                   1_i64
                 else
                   0_i64
                 end
     when Opcode::Equal
+      log "setting equal"
       self[2] = if self[0] == self[1]
                   1_i64
                 else
                   0_i64
                 end
+    when Opcode::RelBase
+      log "adjusting relative base by #{self[0]}"
+      @program.adjust_relative_base(self[0])
     when Opcode::Exit
-      puts "exiting"
+      log "exiting"
       return {adv: 0_i64, jmp: -1_i64}
     else
       raise "unknown opcode #{@opcode}"
