@@ -33,20 +33,20 @@ end
 # Contains a relative offset to advance the pointer,
 # or an absolute instruction number to jump to.
 # If the jump is -1, program will exit
-alias PointerResult = {adv: Int32, jmp: Int32}
+alias PointerResult = {adv: Int64, jmp: Int64}
 
 class Instruction
   @opcode : Opcode
   @parameter_modes : Array(ParamMode)
-  @data : Array(Int32)
-  @position : Int32
+  @data : Array(Int64)
+  @position : Int64
   @program : Intcode
 
   delegate size, to: @opcode
 
   def initialize(@program, @position)
     instruction = @program[@position]
-    @opcode = Opcode.new(instruction % 100)
+    @opcode = Opcode.new((instruction % 100).to_i32)
 
     data_size = @opcode.size - 1
 
@@ -58,7 +58,7 @@ class Instruction
     @data = @program[@position + 1, data_size]
   end
 
-  def [](index : Int) : Int
+  def [](index : Int64) : Int64
     val = @data[index]
     mode = @parameter_modes[index]
 
@@ -72,7 +72,7 @@ class Instruction
     end
   end
 
-  def []=(index : Int, value) : Int
+  def []=(index : Int64, value : Int64) : Int64
     mode = @parameter_modes[index]
 
     case mode
@@ -102,29 +102,29 @@ class Instruction
       puts "setting output #{self[0]}"
       @program.output.send(self[0])
     when Opcode::JumpTrue
-      return {adv: 0, jmp: self[1]} if self[0] != 0
+      return {adv: 0_i64, jmp: self[1]} if self[0] != 0_i64
     when Opcode::JumpFalse
-      return {adv: 0, jmp: self[1]} if self[0] == 0
+      return {adv: 0_i64, jmp: self[1]} if self[0] == 0_i64
     when Opcode::LessThan
       self[2] = if self[0] < self[1]
-                  1
+                  1_i64
                 else
-                  0
+                  0_i64
                 end
     when Opcode::Equal
       self[2] = if self[0] == self[1]
-                  1
+                  1_i64
                 else
-                  0
+                  0_i64
                 end
     when Opcode::Exit
       puts "exiting"
-      return {adv: 0, jmp: -1}
+      return {adv: 0_i64, jmp: -1_i64}
     else
       raise "unknown opcode #{@opcode}"
     end
 
     # For most instructions, advance by the instruction size
-    {adv: @opcode.size, jmp: 0}
+    {adv: @opcode.size.to_i64, jmp: 0_i64}
   end
 end
