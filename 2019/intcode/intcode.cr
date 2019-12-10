@@ -1,38 +1,40 @@
 require "./*"
 
 class Intcode
-  @program : Array(Int32)
-  getter input : Channel(Int32)
+  @program : Array(Int64)
+  getter input : Channel(Int64)
+  getter output = Channel(Int64).new(5)
 
-  getter output = Channel(Int32).new(5)
 
   delegate :<<, to: @output
-  delegate :[], :[]=, size, to: @program
+  delegate :[], :[]=, to: @program
 
   def initialize(@program, @input)
   end
 
   def initialize(program : String)
-    initialize(program, Channel(Int32).new(5))
+    initialize(program, Channel(Int64).new(5))
   end
 
-  def initialize(program : String, input : Array(Int32))
-    input_chan = Channel(Int32).new(input.size)
+  def initialize(program : String, input : Array(Int64))
+    input_chan = Channel(Int64).new(input.size)
     input.each { |i| input_chan.send(i) }
     initialize(program, input_chan)
   end
 
-  def initialize(program : String, @input : Channel(Int32))
-    @program = program.split(',').map &.to_i
+  def initialize(program : String, @input : Channel(Int64))
+    parsed_input = program.split(',').map &.to_i64
+    # Add extra capacity to the program
+    @program = parsed_input.concat(Array.new(10000) { 0_i64 })
   end
 
-  def initialize(program : String, @input : Channel(Int32), @output : Channel(Int32))
+  def initialize(program : String, @input : Channel(Int64), @output : Channel(Int64))
     initialize(program, @input)
   end
 
   def run
     spawn do
-      pointer = 0
+      pointer = 0_i64
 
       while pointer
         instruction = Instruction.new(self, pointer)
@@ -40,16 +42,18 @@ class Intcode
         result = instruction.run
         pointer = modify_pointer(pointer, result)
       end
+
+      output.close
     end
   end
 
-  def modify_pointer(pointer, result) : Int32?
+  def modify_pointer(pointer, result) : Int64?
     if result[:jmp] < 0
       nil
-    elsif result[:jmp] > 0
-      result[:jmp]
-    else
+    elsif result[:adv] > 0
       pointer + result[:adv]
+    else
+      result[:jmp]
     end
   end
 end
