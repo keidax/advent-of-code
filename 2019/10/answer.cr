@@ -76,7 +76,6 @@ def find_in_direction(array, x, y, offset) : {Int32, Int32}?
   end
 end
 
-
 max_visible = 0
 position = {0, 0}
 
