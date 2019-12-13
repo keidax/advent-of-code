@@ -33,7 +33,7 @@ struct Pos
   end
 end
 
-alias WireCoord = { dir: Direction, distance: Int32 }
+alias WireCoord = {dir: Direction, distance: Int32}
 alias WirePath = Array(WireCoord)
 
 def make_path(line : String) : WirePath
@@ -45,10 +45,10 @@ def make_path(line : String) : WirePath
     when 'L' then Direction::Left
     when 'U' then Direction::Up
     when 'D' then Direction::Down
-    else raise "unknown direction #{dir}"
+    else          raise "unknown direction #{dir}"
     end
 
-    { dir: direction, distance: dist.to_i }
+    {dir: direction, distance: dist.to_i}
   end
 end
 

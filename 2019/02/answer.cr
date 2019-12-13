@@ -8,13 +8,13 @@ def run(array, pos)
   when 99
     return
   when 1, 2
-    a_pos, b_pos, save_pos = array[pos+1, 3]
+    a_pos, b_pos, save_pos = array[pos + 1, 3]
     a, b = array[a_pos], array[b_pos]
     result = if opcode == 1
-      a + b
-    else
-      a * b
-    end
+               a + b
+             else
+               a * b
+             end
     array[save_pos] = result
 
     return run(array, pos + 4)

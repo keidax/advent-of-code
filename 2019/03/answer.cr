@@ -1,8 +1,8 @@
 # Determined from inputs
-MIN_X = -5000
+MIN_X =  -5000
 MIN_Y = -14000
-MAX_X = 9000
-MAX_Y = 8000
+MAX_X =   9000
+MAX_Y =   8000
 
 # alias Grid = Bool[14000][22000]
 
@@ -55,8 +55,7 @@ struct Pos
   end
 end
 
-
-alias WireCoord = { dir: Direction, distance: Int32 }
+alias WireCoord = {dir: Direction, distance: Int32}
 alias WirePath = Array(WireCoord)
 
 def make_path(line : String) : WirePath
@@ -68,10 +67,10 @@ def make_path(line : String) : WirePath
     when 'L' then Direction::Left
     when 'U' then Direction::Up
     when 'D' then Direction::Down
-    else raise "unknown direction #{dir}"
+    else          raise "unknown direction #{dir}"
     end
 
-    { dir: direction, distance: dist.to_i }
+    {dir: direction, distance: dist.to_i}
   end
 end
 

@@ -22,4 +22,3 @@ end
 sum = lines.map { |i| total_fuel(i) }.sum
 
 puts sum
-

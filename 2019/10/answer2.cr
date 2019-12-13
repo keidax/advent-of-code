@@ -76,7 +76,6 @@ def find_in_direction(array, x, y, offset) : {Int32, Int32}?
   end
 end
 
-
 max_visible = 0
 position = {0, 0}
 
@@ -113,7 +112,6 @@ x, y = position
 
 total_to_destroy = array.map(&.count(true)).sum - 1
 
-
 while destroyed < total_to_destroy
   offsets.each do |direction|
     if (laser_target = find_in_direction(array, x, y, direction))
@@ -121,18 +119,18 @@ while destroyed < total_to_destroy
       destroyed += 1
 
       if [
-        1,
-        2,
-        3,
-        10,
-        20,
-        50,
-        100,
-        199,
-        200,
-        201,
-        299,
-      ].includes?(destroyed)
+           1,
+           2,
+           3,
+           10,
+           20,
+           50,
+           100,
+           199,
+           200,
+           201,
+           299,
+         ].includes?(destroyed)
         puts "##{destroyed}: #{laser_target}"
       end
     end
