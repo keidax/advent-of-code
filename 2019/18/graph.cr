@@ -7,12 +7,16 @@ class Graph
   delegate :size, to: @data
 
   def initialize(grid)
+    start_location = grid.find('@')
+    initialize(grid, start_location)
+  end
+
+  def initialize(grid, start_location)
     @grid = grid
     @data = Hash(Node, Hash(Node, Int32)).new do |data, node|
       data[node] = Hash(Node, Int32).new
     end
 
-    start_location = grid.find('@')
     start_node = Node.new(start_location[:x], start_location[:y], start: true)
 
     mapping_stack = Deque({x: Int32, y: Int32, from: Node}).new
