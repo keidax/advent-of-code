@@ -1,5 +1,9 @@
 require "colorize"
 
+def xexpect(name, input, expected)
+  puts "#{name}: skipped".colorize(:dark_gray)
+end
+
 def expect(name, input, expected)
   actual = answer(input)
   if actual == expected
