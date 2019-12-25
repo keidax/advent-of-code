@@ -4,15 +4,17 @@ def xexpect(name, input, expected)
   puts "#{name}: skipped".colorize(:dark_gray)
 end
 
-def expect(name, input, expected)
-  actual = answer(input)
-  if actual == expected
+# Call the macro with _input_ as a tuple, which looks neater.
+# But expand _input_ when calling answer, to take advantage of automatic casting.
+macro expect(name, input, expected)
+  actual = answer({{ input.splat }})
+  if actual == {{ expected }}
     with_color(:green).surround do |io|
-      io.puts "#{name}: #{actual} ✔️"
+      io.puts "#{ {{ name }} }: #{actual} ✔️"
     end
   else
     with_color(:red).surround do |io|
-      io.puts "#{name}: #{actual} != #{expected}"
+      io.puts "#{ {{ name }} }: #{actual} != #{ {{ expected }} }"
     end
 
     # Make sure exit status indicates failure
