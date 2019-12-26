@@ -110,9 +110,26 @@ class Instruction
       self[2] = self[0] * self[1]
     when Opcode::Input
       log "getting input"
-      self[0] = @program.input.receive
+      if @program.default_input
+        select
+        when input = @program.input.receive
+          @program.last_received_default = false
+          self[0] = input
+        else
+          log "got default input"
+
+          @program.last_received_default = true
+          self[0] = @program.default_input.not_nil!
+
+          # If looping on default input, we should yield the fiber
+          Fiber.yield
+        end
+      else
+        self[0] = @program.input.receive
+      end
     when Opcode::Output
       log "setting output #{self[0]}"
+      @program.last_received_default = false
       @program.output.send(self[0])
     when Opcode::JumpTrue
       log "jump if true"

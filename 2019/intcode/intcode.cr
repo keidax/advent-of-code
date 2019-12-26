@@ -6,6 +6,10 @@ class Intcode
   getter output = Channel(Int64).new(5)
   getter relative_base = 0
 
+  property default_input : Int64?
+  @default_receive_count = 0
+  getter? idle = false
+
   property verbose = false
 
   delegate :<<, to: @output
@@ -65,5 +69,22 @@ class Intcode
 
   def log(str : String)
     puts str if @verbose
+  end
+
+  IDLE_COUNT = 50
+
+  def last_received_default=(bool)
+    # If we've received IDLE_COUNT or more default values in a row without sending any values,
+    # this machine is considered idle.
+    if bool
+      if @default_receive_count >= IDLE_COUNT
+        @idle = true
+      else
+        @default_receive_count += 1
+      end
+    else
+      @idle = false
+      @default_receive_count = 0
+    end
   end
 end
