@@ -2,8 +2,8 @@ require "../intcode"
 
 input = File.read("input.txt").chomp
 
-def run_combination(prog_input, comb : Array(Int32)) : Int32
-  first_in = last_out = Channel(Int32).new(2)
+def run_combination(prog_input, comb : Array(Int64)) : Int64
+  first_in = last_out = Channel(Int64).new(2)
 
   programs = comb.map_with_index do |phase, i|
     if i + 1 < comb.size
@@ -27,7 +27,7 @@ def run_combination(prog_input, comb : Array(Int32)) : Int32
   last_out.receive
 end
 
-combinations = (5...10).to_a.permutations
+combinations = (5_i64...10_i64).to_a.permutations
 
 signals = combinations.map do |combo|
   signal_out = run_combination(input, combo)

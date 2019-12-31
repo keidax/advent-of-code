@@ -4,7 +4,7 @@ require "./multi_graph"
 require "./multi_grid"
 require "./node"
 
-expect "Example 1", <<-EX, 8
+expect "Example 1", {<<-EX}, 8
 #######
 #a.#Cd#
 ##...##
@@ -14,7 +14,7 @@ expect "Example 1", <<-EX, 8
 #######
 EX
 
-expect "Example 2", <<-EX, 24
+expect "Example 2", {<<-EX}, 24
 ###############
 #d.ABC.#.....a#
 ######...######
@@ -24,7 +24,7 @@ expect "Example 2", <<-EX, 24
 ###############
 EX
 
-expect "Example 3", <<-EX, 32
+expect "Example 3", {<<-EX}, 32
 #############
 #DcBa.#.GhKl#
 #.###...#I###
@@ -34,7 +34,7 @@ expect "Example 3", <<-EX, 32
 #############
 EX
 
-expect "Example 4", <<-EX, 72
+expect "Example 4", {<<-EX}, 72
 #############
 #g#f.D#..h#l#
 #F###e#E###.#

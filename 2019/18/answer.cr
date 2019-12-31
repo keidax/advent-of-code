@@ -4,13 +4,13 @@ require "./graph"
 require "./grid"
 require "./node"
 
-expect "Example 1", <<-EX, 8
+expect "Example 1", {<<-EX}, 8
 #########
 #b.A.@.a#
 #########
 EX
 
-expect "Example 2", <<-EX, 86
+expect "Example 2", {<<-EX}, 86
 ########################
 #f.D.E.e.C.b.A.@.a.B.c.#
 ######################.#
@@ -18,7 +18,7 @@ expect "Example 2", <<-EX, 86
 ########################
 EX
 
-expect "Example 3", <<-EX, 132
+expect "Example 3", {<<-EX}, 132
 ########################
 #...............b.C.D.f#
 #.######################
@@ -26,7 +26,7 @@ expect "Example 3", <<-EX, 132
 ########################
 EX
 
-expect "Example 4", <<-EX, 136
+expect "Example 4", {<<-EX}, 136
 #################
 #i.G..c...e..H.p#
 ########.########
@@ -38,7 +38,7 @@ expect "Example 4", <<-EX, 136
 #################
 EX
 
-expect "Example 5", <<-EX, 81
+expect "Example 5", {<<-EX}, 81
 ########################
 #@..............ac.GI.b#
 ###d#e#f################
@@ -47,7 +47,7 @@ expect "Example 5", <<-EX, 81
 ########################
 EX
 
-expect "test 1", <<-TEST, 7
+expect "test 1", {<<-TEST}, 7
 #####
 ##b##
 #a@d#
@@ -55,7 +55,7 @@ expect "test 1", <<-TEST, 7
 #####
 TEST
 
-expect "test 2", <<-TEST, 12
+expect "test 2", {<<-TEST}, 12
 #######
 ###c###
 #.....#
@@ -63,14 +63,14 @@ expect "test 2", <<-TEST, 12
 #######
 TEST
 
-expect "test 3", <<-TEST, 2
+expect "test 3", {<<-TEST}, 2
 #####
 ##..#
 #a.@#
 #####
 TEST
 
-expect "test 4", <<-TEST, 9
+expect "test 4", {<<-TEST}, 9
 ######
 #a..d#
 #.@..#
@@ -78,7 +78,7 @@ expect "test 4", <<-TEST, 9
 ######
 TEST
 
-expect "test 5", <<-EX, 68
+expect "test 5", {<<-EX}, 68
 #################
 #...c......e....#
 ########@########

@@ -2,12 +2,12 @@ require "../intcode"
 
 input = File.read("input.txt").chomp
 
-def run_combination(prog_input, comb : Array(Int32)) : Int32
-  last_out = Channel(Int32).new(1)
+def run_combination(prog_input, comb : Array(Int64)) : Int64
+  last_out = Channel(Int64).new(1)
   last_out.send(0)
 
   comb.each do |i|
-    prog = Intcode.new(prog_input, [i, last_out.receive])
+    prog = Intcode.new(prog_input, [i, last_out.receive] of Int64)
     prog.run
     last_out = prog.output
   end
@@ -15,7 +15,7 @@ def run_combination(prog_input, comb : Array(Int32)) : Int32
   last_out.receive
 end
 
-combinations = (0...5).to_a.permutations
+combinations = (0_i64...5_i64).to_a.permutations
 
 signals = combinations.map do |combo|
   signal_out = run_combination(input, combo)
