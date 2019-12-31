@@ -2,7 +2,7 @@ require "../expect"
 
 require "./recursive_grid"
 
-expect "Example 1", <<-EX, 26
+expect "Example 1", {<<-EX}, 26
          A           
          A           
   #######.#########  
@@ -24,7 +24,7 @@ FG..#########.....#
              Z       
 EX
 
-expect "Example 3", <<-EX, 396
+expect "Example 3", {<<-EX}, 396
              Z L X W       C                 
              Z P Q B       K                 
   ###########.#.#.#.#######.###############  

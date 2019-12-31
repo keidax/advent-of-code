@@ -2,7 +2,7 @@ require "../expect"
 
 require "./grid"
 
-expect "Example 1", <<-EX, 23
+expect "Example 1", {<<-EX}, 23
          A           
          A           
   #######.#########  
@@ -24,7 +24,7 @@ FG..#########.....#
              Z       
 EX
 
-expect "Example 2", <<-EX, 58
+expect "Example 2", {<<-EX}, 58
                    A               
                    A               
   #################.#############  
