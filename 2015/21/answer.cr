@@ -47,8 +47,8 @@ class Fighter
 end
 
 def can_beat_boss?(items : Array(Item)) : Bool
-  player = Fighter.new(hp = 100, damage = items.sum(&.[:damage]), armor = items.sum(&.[:armor]))
-  boss = Fighter.new(hp = 100, damage = 8, armor = 2)
+  player = Fighter.new(hp: 100, damage: items.sum(&.[:damage]), armor: items.sum(&.[:armor]))
+  boss = Fighter.new(hp: 100, damage: 8, armor: 2)
 
   attacker = player
   defender = boss

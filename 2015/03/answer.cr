@@ -13,7 +13,7 @@ class Santa
 end
 
 # Part 1
-homes = Hash(Location, Int32).new(default_value = 0)
+homes = Hash(Location, Int32).new(default_value: 0)
 homes[{0, 0}] += 1
 
 santa = Santa.new(homes)
@@ -38,7 +38,7 @@ end
 puts homes.keys.size
 
 # Part 2
-homes = Hash(Location, Int32).new(default_value = 0)
+homes = Hash(Location, Int32).new(default_value: 0)
 homes[{0, 0}] += 1
 
 # both santas share the same homes

@@ -33,24 +33,24 @@ end
 
 SPELLS = [
   # Magic Missile
-  Spell.new(mana = 53) do |state|
+  Spell.new(mana: 53) do |state|
     state.boss_hp -= 4
   end,
   # Drain
-  Spell.new(mana = 73) do |state|
+  Spell.new(mana: 73) do |state|
     state.boss_hp -= 2
     state.player_hp += 2
   end,
   # Shield
-  Spell.new(mana = 113, :shield) do |state|
+  Spell.new(mana: 113, effect: :shield) do |state|
     state.effects[Effect::Shield] = 6
   end,
   # Poison
-  Spell.new(mana = 173, :poison) do |state|
+  Spell.new(mana: 173, effect: :poison) do |state|
     state.effects[Effect::Poison] = 6
   end,
   # Recharge
-  Spell.new(mana = 229, :recharge) do |state|
+  Spell.new(mana: 229, effect: :recharge) do |state|
     state.effects[Effect::Recharge] = 5
   end,
 ]
