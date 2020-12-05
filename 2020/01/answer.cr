@@ -4,7 +4,7 @@ File.each_line("input.txt") do |line|
 end
 
 # Part 1
-nums.combinations(size = 2).each do |combo|
+nums.combinations(size: 2).each do |combo|
   if combo.sum == 2020
     puts combo.product
     break
@@ -12,7 +12,7 @@ nums.combinations(size = 2).each do |combo|
 end
 
 # Part 2
-nums.combinations(size = 3).each do |combo|
+nums.combinations(size: 3).each do |combo|
   if combo.sum == 2020
     puts combo.product
     break
