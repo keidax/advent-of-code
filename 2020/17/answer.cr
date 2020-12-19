@@ -1,187 +1,174 @@
-alias Cube = Array(Int32)
+# The main data structure is a nested N-dimensional array.
+# Most methods are optimized to avoid heap allocations.
+alias NVec = Array(Bool) | Array(NVec)
 
-# N-dimensional Tree
-# A data structure representing a sparse n-dimensional space
-class NTree
-  property depth : Int32
-  property nodes : Hash(Int32, NTree)
-  property elems : Set(Int32)
-
-  def_clone
-
-  def initialize(dimensions)
-    @depth = dimensions
-
-    @nodes = {} of Int32 => NTree
-    @elems = Set(Int32).new
+def build_n_vec(dimensions) : NVec
+  if dimensions.size == 1
+    Array(Bool).new(size: dimensions[0]) { false }
+  else
+    lower_dimension = dimensions[1..]
+    Array(NVec).new(size: dimensions[0]) { build_n_vec(lower_dimension) }
   end
+end
 
-  def [](vec, index = 0) : Bool
-    if vec.size != depth + index
-      raise KeyError.new("wrong size #{vec.size} for NTree of depth #{depth}")
-    end
-
-    val = vec[index]
-
-    if vec.size - 1 == index
-      elems.includes?(val)
+# Get the value at the given coords, where each coordinate is a different dimension
+# Safely handle out-of-bounds
+def get(nvec, coords) : Bool?
+  index = 0
+  loop do
+    if nvec.is_a?(Array(NVec))
+      nvec = nvec[coords[index]]?
+      index += 1
     else
-      nodes.has_key?(val) && nodes[val][vec, index + 1]
+      break
     end
   end
 
-  def []=(vec, active : Bool, index = 0)
-    if vec.size != depth + index
-      raise KeyError.new("wrong size #{vec.size} for NTree of depth #{depth}")
-    end
+  nvec && nvec.as(Array(Bool))[coords[index]]?
+end
 
-    val = vec[index]
-
-    if vec.size - 1 == index
-      if active
-        elems.add(val)
-      else
-        elems.delete(val)
-      end
+# Assign the value at the given coords, where each coordinate is a different dimension
+def assign(nvec, coords, value)
+  coords.each_with_index do |d, i|
+    if nvec.is_a?(Array(Bool))
+      nvec[d] = value
     else
-      if nodes.has_key?(val)
-        nodes[val][vec, index: index + 1] = active
-      else
-        nodes[val] = NTree.new(depth - 1)
-        nodes[val][vec, index: index + 1] = active
-      end
-    end
-  end
-
-  def size
-    if depth == 1
-      return elems.size
-    end
-
-    size = 0
-    nodes.each_value do |tree|
-      size += tree.size
-    end
-
-    size
-  end
-
-  def ranges : Array(Array(Int32))
-    if depth == 1
-      if elems.any?
-        return [elems.minmax.to_a]
-      else
-        return [[0, 0]]
-      end
-    end
-
-    min, max = 0, 0
-
-    sub_ranges = Array.new(depth - 1) { [0, 0] }
-    nodes.each do |val, tree|
-      max = val if val > max
-      min = val if val < min
-
-      tree.ranges.each_with_index do |(sub_min, sub_max), i|
-        if sub_min < sub_ranges[i][0]
-          sub_ranges[i][0] = sub_min
-        end
-
-        if sub_max > sub_ranges[i][1]
-          sub_ranges[i][1] = sub_max
-        end
-      end
-    end
-
-    [[min, max]] + sub_ranges
-  end
-
-  def all_locations(&blk : Cube ->)
-    all_ranges = ranges.map { |(min, max)| min - 1..max + 1 }
-
-    all_locations(all_ranges, [] of Int32, &blk)
-  end
-
-  private def all_locations(ranges, coords, &blk : Cube ->)
-    if coords.size == ranges.size
-      yield coords
-    else
-      range = ranges[coords.size]
-      range.each do |val|
-        coords.push val
-        all_locations(ranges, coords, &blk)
-        coords.pop
-      end
+      nvec = nvec[d]
     end
   end
 end
 
-class PermutationCache
-  @@cache : Hash(Int32, Array(Array(Int32))) = {} of Int32 => Array(Array(Int32))
+# Count how many locations are active across all dimensions
+def sum(nvec) : Int32
+  if nvec.is_a?(Array(Bool))
+    nvec.count &.itself
+  else
+    nvec.sum { |v| sum(v) }
+  end
+end
 
-  def self.get(size)
-    @@cache[size] ||= begin
-      permutations = [] of Array(Int32)
-      [-1, 0, 1].each_repeated_permutation(size: size) do |offsets|
-        permutations << offsets
-      end
-      permutations
+# Call the given block for every location across all dimensions
+def each_location(vec : NVec, coords = [] of Int32, &blk : Array(Int32), Bool ->)
+  if vec.is_a?(Array(Bool))
+    vec.each_with_index do |val, i|
+      yield coords.push(i), val
+      coords.pop
+    end
+  else
+    vec.each_with_index do |sub_vec, i|
+      each_location(sub_vec, coords.push(i), &blk)
+      coords.pop
     end
   end
 end
 
-def adjacent_cube_count(universe, cube, cutoff = Int32::MAX) : Int32
+CUTOFF = 3
+
+# Count how many locations adjacent to the given coords are active.
+# "Adjacent" means each coordinate can differ by at most 1.
+# Returns early if we've already reached the cutoff.
+#
+# is_zero tracks if the offset is 0 on all coords.
+# In other words, it's the central location, not a neighbor.
+def adjacent_locations(nvec, coords, depth = 0, is_zero = false) : Int32
+  if depth + 1 == coords.size
+    return adjacent_slice(nvec, coords, is_zero)
+  end
+
   count = 0
 
-  PermutationCache.get(cube.size).each do |offsets|
-    next if offsets.all?(&.zero?)
-
-    neighbor = offsets.zip(cube).map { |(offset, val)| offset + val }
-    count += 1 if universe[neighbor]
-
-    break if count > cutoff
+  if coords[depth] > 0
+    coords[depth] -= 1
+    count += adjacent_locations(nvec, coords, depth: depth + 1)
+    coords[depth] += 1
   end
+  return count if count > CUTOFF
+
+  if depth == 0
+    count += adjacent_locations(nvec, coords, depth: depth + 1, is_zero: true)
+  else
+    count += adjacent_locations(nvec, coords, depth: depth + 1, is_zero: is_zero)
+  end
+  return count if count > CUTOFF
+
+  coords[depth] += 1
+  count += adjacent_locations(nvec, coords, depth: depth + 1)
+  coords[depth] -= 1
 
   count
 end
 
-n = NTree.new(3)
+# Optimized base case for adjacent_locations
+def adjacent_slice(nvec, coords, is_zero = false) : Int32
+  index = 0
 
-original_cubes = [] of Cube
-
-y = 0
-File.each_line("input.txt") do |line|
-  line.chars.each_with_index do |c, x|
-    if c == '#'
-      original_cubes << [x, y]
+  while index < coords.size - 1
+    if nvec.is_a?(Array(NVec))
+      nvec = nvec[coords[index]]?
+      index += 1
+    else
+      return 0
     end
   end
 
-  y += 1
-end
+  if nvec.is_a?(Array(Bool))
+    d = coords.last
+    count = 0
+    if d > 0 && nvec[d - 1]
+      count += 1
+    end
 
-def simulate_with_dimensions(original_cubes, dimensions)
-  universe = NTree.new(dimensions)
+    if !is_zero && nvec[d]
+      count += 1
+    end
 
-  original_cubes.each do |cube|
-    mapped_cube = cube + [0] * (dimensions - cube.size)
-    universe[mapped_cube] = true
+    if d < nvec.size - 1 && nvec[d + 1]
+      count += 1
+    end
+
+    return count
   end
 
-  6.times do
-    print '#'
+  return 0
+end
+
+# This is pretty inefficient because it simulates the entire region every round,
+# instead of focusing on the bounded active region. But we can allocate the data
+# structure all up front, instead of expanding it each round.
+#
+# This also ignores any mirroring in the simulation.
+def simulate(dimensions, rounds)
+  lines = File.read_lines("input.txt")
+
+  # Build a matrix large enough to hold all values, assuming the active space
+  # can increase by 1 in each direction each round.
+  bounding = 2 * rounds
+  dimension_bounds = [bounding + 1] * (dimensions - 2) + [bounding + lines.size, bounding + lines[0].size]
+  universe = build_n_vec(dimension_bounds)
+
+  prefix = [rounds] * (dimensions - 2)
+
+  lines.each_with_index do |line, y|
+    line.chars.each_with_index do |c, x|
+      if c == '#'
+        assign(universe, prefix + [y + rounds, x + rounds], true)
+      end
+    end
+  end
+
+  rounds.times do
     new_universe = universe.clone
 
-    universe.all_locations do |coords|
-      active_neighbors = adjacent_cube_count(universe, coords, cutoff: 3)
+    each_location(universe) do |coords|
+      active_neighbors = adjacent_locations(universe, coords)
 
-      if universe[coords]
+      if get(universe, coords)
         unless active_neighbors == 2 || active_neighbors == 3
-          new_universe[coords] = false
+          assign(new_universe, coords, false)
         end
       else
         if active_neighbors == 3
-          new_universe[coords] = true
+          assign(new_universe, coords, true)
         end
       end
     end
@@ -189,11 +176,10 @@ def simulate_with_dimensions(original_cubes, dimensions)
     universe = new_universe
   end
 
-  universe.size
+  universe
 end
 
 # Part 1
-puts simulate_with_dimensions(original_cubes, dimensions: 3)
-
+puts sum(simulate(3, 6))
 # Part 2
-puts simulate_with_dimensions(original_cubes, dimensions: 4)
+puts sum(simulate(4, 6))
