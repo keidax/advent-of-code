@@ -7,6 +7,10 @@ class Tile
   def initialize(@id, @data)
   end
 
+  def trimmed_data
+    data[1..-2].map { |row| row[1..-2] }
+  end
+
   def edges : Array(UInt16)
     @edges ||= begin
       rotated = data.transpose
@@ -127,57 +131,139 @@ puts edge_tiles.map(&.id.to_i64).product
 
 # Part 2
 
-SIZE = 12
+TILE_SIZE = 8
 
-grid = Array(Array(Tile?)).new(12) { Array(Tile?).new(12) { nil } }
+def fill_grid(tiles, corners, edge_counts) : Array(Array(Tile))
+  grid_size = Math.sqrt(tiles.size).to_i
 
-# Find the first corner
-corner = edge_tiles.first
-corner_edges = corner.edges.select { |edge| edge_counts[edge] == 1 }.sort
+  # Find the first corner
+  corner = corners.first
+  corner_edges = corner.edges.select { |edge| edge_counts[edge] == 1 }.sort
+  tiles.delete(corner)
 
-# Orient the corner so the correct edges are facing out
-corner.each_orientation do |_corner|
-  if [_corner.top_edge(flip: true), _corner.left_edge(flip: true)].sort == corner_edges
-    corner = _corner
+  # Orient the corner so the correct edges are facing out
+  corner = corner.find_orientation do |corner|
+    [corner.top_edge(flip: true), corner.left_edge(flip: true)].sort == corner_edges
+  end.not_nil!
+
+  grid = Array(Array(Tile)).new
+  grid << [corner] of Tile
+
+  # Fill in the rest of the top row of the grid
+  (1...grid_size).each do |i|
+    prev_edge = grid[0][i - 1].right_edge
+
+    next_tile = nil
+    tiles.each do |tile|
+      next_tile = tile.find_orientation { |t| t.left_edge == prev_edge }
+      if next_tile
+        tiles.delete(tile)
+        break
+      end
+    end
+
+    grid[0] << next_tile.not_nil!
+  end
+
+  # Fill in remaining rows
+  (1...grid_size).each do |row|
+    grid << [] of Tile
+    (0...grid_size).each do |col|
+      prev_edge = grid[row - 1][col].bottom_edge
+
+      next_tile = nil
+
+      tiles.each do |tile|
+        next_tile = tile.find_orientation { |t| t.top_edge == prev_edge }
+        if next_tile
+          tiles.delete(tile)
+          break
+        end
+      end
+
+      grid[row] << next_tile.not_nil!
+    end
+  end
+
+  grid
+end
+
+grid = fill_grid(tiles, edge_tiles, edge_counts)
+
+image_data = Array.new(TILE_SIZE * grid.size) { Array(Bool).new(TILE_SIZE * grid.size) { false } }
+grid.each_with_index do |row, i|
+  row.each_with_index do |tile, j|
+    tile.trimmed_data.each_with_index do |data_row, y|
+      data_row.each_with_index do |pixel, x|
+        image_data[i*TILE_SIZE + y][j*TILE_SIZE + x] = pixel
+      end
+    end
+  end
+end
+
+sea_monster_data = <<-EOF
+                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   
+EOF
+
+sea_monster_points = [] of {Int32, Int32}
+sea_monster_data.lines.map_with_index do |line, y|
+  line.chars.map_with_index do |c, x|
+    if c == '#'
+      sea_monster_points << {y, x}
+    end
+  end
+end
+
+def find_sea_monsters(grid, points)
+  locations = [] of {Int32, Int32}
+
+  grid.each_with_index do |row, y|
+    out_of_bounds = false
+
+    row.each_with_index do |col, x|
+      found = true
+      points.each do |j, i|
+        if y + j >= grid.size
+          found = false
+          out_of_bounds = true
+          break
+        end
+        if x + i >= row.size
+          found = false
+          out_of_bounds = true
+          break
+        end
+        unless grid[y + j][x + i]
+          found = false
+          break
+        end
+      end
+
+      break if out_of_bounds
+
+      if found
+        locations << {y, x}
+      end
+    end
+  end
+
+  locations
+end
+
+image = Tile.new(0, image_data)
+sea_monsters = [] of {Int32, Int32}
+
+image.each_orientation do |flipped_image|
+  sea_monsters = find_sea_monsters(flipped_image.data, sea_monster_points)
+  if sea_monsters.any?
+    image = flipped_image
     break
   end
 end
 
-grid[0][0] = corner
+total_sm_pixels = sea_monsters.size * sea_monster_points.size
+total_filled_pixels = image.data.sum &.count(&.itself)
 
-# Fill in the rest of the top row of the grid
-(1...SIZE).each do |i|
-  prev_edge = grid[0][i - 1].not_nil!.right_edge
-
-  next_tile = nil
-  tiles.each do |tile|
-    if (
-         next_tile = tile.find_orientation do |tile|
-           tile.left_edge == prev_edge
-         end
-       )
-      break
-    end
-  end
-
-  grid[0][i] = next_tile
-end
-
-puts grid[0].count &.itself
-
-# Fill in remaining rows
-(1...SIZE).each do |row|
-  (0...SIZE).each do |col|
-    prev_edge = grid[row - 1][col].not_nil!.bottom_edge
-
-    next_tile = nil
-
-    tiles.each do |tile|
-      next_tile = tile.find_orientation { |t| t.top_edge == prev_edge }
-      break if next_tile
-    end
-
-    grid[row][col] = next_tile
-  end
-  puts grid[row].count &.itself
-end
+puts total_filled_pixels - total_sm_pixels
