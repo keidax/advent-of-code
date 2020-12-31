@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
+	"github.com/keidax/advent-of-code/aoc"
 )
 
 func tallyChars(input [][]byte) []map[byte]int {
@@ -63,23 +61,13 @@ func leastCommonChars(tally []map[byte]int) []byte {
 }
 
 func main() {
-	file, err := os.Open("input.txt")
+	lines, err := aoc.InputBytes()
 	if err != nil {
 		panic(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	lines := make([][]byte, 0)
-
-	for scanner.Scan() {
-		// Make a copy of bytes, otherwise they may be overwritten
-		scannedBytes := append([]byte{}, scanner.Bytes()...)
-		lines = append(lines, scannedBytes)
 	}
 
 	charCounts := tallyChars(lines)
 
-	fmt.Printf("Part 1: %s\n", mostCommonChars(charCounts))
-	fmt.Printf("Part 2: %s\n", leastCommonChars(charCounts))
+	aoc.Part1(mostCommonChars(charCounts))
+	aoc.Part2(leastCommonChars(charCounts))
 }

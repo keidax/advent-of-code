@@ -1,10 +1,9 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"log"
-	"os"
+
+	"github.com/keidax/advent-of-code/aoc"
 )
 
 func findCode(lines []string, keypad [][]rune) (code []rune) {
@@ -78,24 +77,11 @@ func part2(lines []string) (code []rune) {
 }
 
 func main() {
-	file, err := os.Open("input.txt")
+	lines, err := aoc.InputLines()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	lines := make([]string, 0)
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	fmt.Print("Part 1: ")
-	part1Code := part1(lines)
-	fmt.Printf("%s\n", string(part1Code))
-
-	fmt.Print("Part 2: ")
-	part2Code := part2(lines)
-	fmt.Printf("%s\n", string(part2Code))
+	aoc.Part1(part1(lines))
+	aoc.Part2(part2(lines))
 }

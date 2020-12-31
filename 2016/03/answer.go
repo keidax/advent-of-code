@@ -1,13 +1,12 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"log"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/keidax/advent-of-code/aoc"
 )
 
 func countTriangles(numbers [][]int) (count int) {
@@ -21,20 +20,17 @@ func countTriangles(numbers [][]int) (count int) {
 }
 
 func main() {
-	file, err := os.Open("input.txt")
+	lines, err := aoc.InputLines()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
 	rowNum := 0
 
 	numbers := make([][]int, 0)
 	numbers2 := make([][]int, 0)
 
-	for scanner.Scan() {
-		line := scanner.Text()
+	for _, line := range lines {
 		fields := strings.Fields(line)
 
 		numbers = append(numbers, make([]int, 0))
@@ -66,6 +62,6 @@ func main() {
 		rowNum++
 	}
 
-	fmt.Printf("Part 1: %d\n", countTriangles(numbers))
-	fmt.Printf("Part 1: %d\n", countTriangles(numbers2))
+	aoc.Part1(countTriangles(numbers))
+	aoc.Part2(countTriangles(numbers2))
 }
