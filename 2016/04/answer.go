@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"log"
-	"os"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/keidax/advent-of-code/aoc"
 )
 
 type room struct {
@@ -111,18 +110,16 @@ func part2(rooms []room) int {
 }
 
 func main() {
-	file, err := os.Open("input.txt")
+	lines, err := aoc.InputLines()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
 	rooms := make([]room, 0)
-	scanner := bufio.NewScanner(file)
 	re := regexp.MustCompile(`([-a-z]+)-([0-9]+)\[([a-z]{5})\]`)
 
-	for scanner.Scan() {
-		match := re.FindStringSubmatch(scanner.Text())
+	for _, line := range lines {
+		match := re.FindStringSubmatch(line)
 
 		roomName := match[1]
 		sectorID, err := strconv.Atoi(match[2])
@@ -134,6 +131,6 @@ func main() {
 		rooms = append(rooms, room{roomName, sectorID, checksum})
 	}
 
-	fmt.Printf("Part 1: %d\n", part1(rooms))
-	fmt.Printf("Part 2: %d\n", part2(rooms))
+	aoc.Part1(part1(rooms))
+	aoc.Part2(part2(rooms))
 }

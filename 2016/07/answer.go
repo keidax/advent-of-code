@@ -1,10 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
-	"fmt"
-	"os"
+
+	"github.com/keidax/advent-of-code/aoc"
 )
 
 type ipV7Addr struct {
@@ -114,21 +113,16 @@ func part2(addrs []ipV7Addr) int {
 }
 
 func main() {
-	file, err := os.Open("input.txt")
+	lines, err := aoc.InputBytes()
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
 	addrs := make([]ipV7Addr, 0)
 
-	for scanner.Scan() {
+	for _, line := range lines {
 		newAddr := newAddr()
-
-		// Make a copy of bytes, otherwise they may be overwritten
-		scannedBytes := append([]byte{}, scanner.Bytes()...)
-		pieces := bytes.Split(scannedBytes, []byte("["))
+		pieces := bytes.Split(line, []byte("["))
 
 		// The first piece can be appended directly
 		newAddr.supernetSequences = append(newAddr.supernetSequences, pieces[0])
@@ -143,6 +137,6 @@ func main() {
 		addrs = append(addrs, newAddr)
 	}
 
-	fmt.Printf("Part 1: %d\n", part1(addrs))
-	fmt.Printf("Part 2: %d\n", part2(addrs))
+	aoc.Part1(part1(addrs))
+	aoc.Part2(part2(addrs))
 }

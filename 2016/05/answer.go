@@ -4,6 +4,8 @@ import (
 	"crypto/md5"
 	"fmt"
 	"strconv"
+
+	"github.com/keidax/advent-of-code/aoc"
 )
 
 func part1(doorID []byte) []byte {
@@ -69,6 +71,6 @@ func main() {
 	// input := []byte("abc")
 	input := []byte("abbhdwsy")
 
-	fmt.Printf("Part 1: %s\n", part1(input))
-	fmt.Printf("Part 2: %s\n", part2(input))
+	aoc.Part1(part1(input))
+	aoc.Part2(part2(input))
 }
