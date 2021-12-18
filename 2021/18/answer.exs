@@ -1,81 +1,53 @@
 defmodule Day18 do
   def explode(num_list, depth \\ 0)
 
+  def explode(num, _depth) when is_integer(num) do
+    {:ok, num}
+  end
+
   def explode([l, r], depth) when is_integer(l) and is_integer(r) do
     if depth < 4 do
-      # No explode needed
       {:ok, [l, r]}
     else
       {:explode, [l, 0, r]}
     end
   end
 
-  def explode([l, r_list], depth) when is_integer(l) and is_list(r_list) do
-    case explode(r_list, depth + 1) do
-      {:ok, r} ->
+  def explode([l, r], depth) do
+    case {
+      explode(l, depth + 1),
+      explode(r, depth + 1)
+    } do
+      {{:ok, _l}, {:ok, _r}} ->
         {:ok, [l, r]}
 
-      {:explode, [r_l, r_done, r_r]} when is_integer(r_l) ->
-        {:explode, [nil, [l + r_l, r_done], r_r]}
+      {
+        {:ok, _l},
+        {:explode, [r_l, r_done, r_r]}
+      } ->
+        {:explode, [nil, [merge(l, r_l), r_done], r_r]}
 
-      {:explode, [nil, r_done, r_r]} ->
-        {:explode, [nil, [l, r_done], r_r]}
+      {
+        {:explode, [l_l, l_done, l_r]},
+        _right
+      } ->
+        {:explode, [l_l, [l_done, merge(l_r, r)], nil]}
     end
   end
 
-  def explode([l_list, r], depth) when is_list(l_list) and is_integer(r) do
-    case explode(l_list, depth + 1) do
-      {:ok, l} ->
-        {:ok, [l, r]}
+  def merge(nil, r), do: r
+  def merge(l, nil), do: l
 
-      {:explode, [l_l, l_done, l_r]} when is_integer(l_r) ->
-        {:explode, [l_l, [l_done, l_r + r], nil]}
-
-      {:explode, [l_l, l_done, nil]} ->
-        {:explode, [l_l, [l_done, r], nil]}
-    end
+  def merge(l, r) when is_integer(l) and is_integer(r) do
+    l + r
   end
 
-  def explode([l_list, r_list], depth) when is_list(l_list) and is_list(r_list) do
-    case explode(l_list, depth + 1) do
-      {:ok, l} ->
-        explode_right(l, r_list, depth)
-
-      {:explode, [l_l, l_done, l_r]} when is_integer(l_r) ->
-        {:explode, [l_l, [l_done, add_from_left(l_r, r_list)], nil]}
-
-      {:explode, [l_l, l_done, nil]} ->
-        {:explode, [l_l, [l_done, r_list], nil]}
-    end
+  def merge(num, [l, r]) when is_integer(num) do
+    [merge(num, l), r]
   end
 
-  def explode_right(l_list, r_list, depth) do
-    case explode(r_list, depth + 1) do
-      {:ok, r} ->
-        {:ok, [l_list, r]}
-
-      {:explode, [r_l, r_done, r_r]} when is_integer(r_l) ->
-        {:explode, [nil, [add_from_right(l_list, r_l), r_done], r_r]}
-
-      {:explode, [nil, r_done, r_r]} ->
-        {:explode, [nil, [l_list, r_done], r_r]}
-    end
-  end
-
-  def add_from_left(num, [l, r]) when is_integer(l) do
-    [l + num, r]
-  end
-
-  def add_from_left(num, [l, r]) do
-    [add_from_left(num, l), r]
-  end
-
-  def add_from_right([l, r], num) when is_integer(r) do
-    [l, r + num]
-  end
-
-  def add_from_right([l, r], num) do
-    [l, add_from_right(r, num)]
+  def merge([l, r], num) when is_integer(num) do
+    [l, merge(r, num)]
   end
 
   def split(num) when is_integer(num) and num < 10 do
@@ -87,16 +59,15 @@ defmodule Day18 do
   end
 
   def split([l, r]) do
-    case split(l) do
-      {:ok, l} -> split_right(l, r)
-      {:split, new_l} -> {:split, [new_l, r]}
-    end
-  end
+    case {split(l), split(r)} do
+      {{:ok, _l}, {:ok, _r}} ->
+        {:ok, [l, r]}
 
-  def split_right(l, r) do
-    case split(r) do
-      {:ok, r} -> {:ok, [l, r]}
-      {:split, new_r} -> {:split, [l, new_r]}
+      {{:ok, _l}, {:split, r}} ->
+        {:split, [l, r]}
+
+      {{:split, l}, _right} ->
+        {:split, [l, r]}
     end
   end
 
@@ -124,19 +95,19 @@ defmodule Day18 do
       |> String.trim()
       |> String.codepoints()
 
-    {tree, []} = build_tree(chars)
+    {tree, []} = parse_tree(chars)
 
     tree
   end
 
-  def build_tree([d | rest]) when d in ~w[0 1 2 3 4 5 6 7 8 9] do
+  def parse_tree([d | rest]) when d in ~w[0 1 2 3 4 5 6 7 8 9] do
     {String.to_integer(d), rest}
   end
 
-  def build_tree(["[" | l_tree]) do
-    {left_side, ["," | right_and_rest]} = build_tree(l_tree)
+  def parse_tree(["[" | l_tree]) do
+    {left_side, ["," | right_and_rest]} = parse_tree(l_tree)
 
-    {right_side, ["]" | rest]} = build_tree(right_and_rest)
+    {right_side, ["]" | rest]} = parse_tree(right_and_rest)
 
     {[left_side, right_side], rest}
   end
