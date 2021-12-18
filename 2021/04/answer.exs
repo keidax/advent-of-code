@@ -1,5 +1,5 @@
 input =
-  File.stream!("input.txt")
+  IO.stream(:line)
   |> Enum.map(&String.trim/1)
 
 [[number_input] | board_input] =

@@ -1,5 +1,5 @@
 input_str =
-  File.read!("input.txt")
+  IO.read(:line)
   |> String.trim()
 
 length_in_bits = String.length(input_str) * 4

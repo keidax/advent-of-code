@@ -30,7 +30,7 @@ parse_line = fn line ->
 end
 
 input =
-  File.stream!("input.txt")
+  IO.stream(:line)
   |> Enum.map(parse_line)
 
 # Part 1

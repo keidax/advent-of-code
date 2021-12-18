@@ -102,7 +102,7 @@ defmodule Day12 do
 end
 
 input =
-  File.stream!("input.txt")
+  IO.stream(:line)
   |> Enum.map(fn line ->
     line |> String.trim() |> String.split("-")
   end)

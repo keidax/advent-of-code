@@ -1,5 +1,6 @@
-input = File.stream!("input.txt")
-|> Enum.map(&String.trim/1)
+input =
+  IO.stream(:line)
+  |> Enum.map(&String.trim/1)
 
 # Part 1
 to_i = &String.to_integer/1
@@ -15,7 +16,7 @@ end
 input
 |> Enum.reduce({0, 0}, update_direction)
 |> then(fn {x, y} -> x * y end)
-|> IO.inspect
+|> IO.inspect()
 
 # Part 2
 update_direction_and_aim = fn command, {x, y, aim} ->
@@ -29,4 +30,4 @@ end
 input
 |> Enum.reduce({0, 0, 0}, update_direction_and_aim)
 |> then(fn {x, y, _} -> x * y end)
-|> IO.inspect
+|> IO.inspect()

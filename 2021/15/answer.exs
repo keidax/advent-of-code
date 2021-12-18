@@ -1,5 +1,5 @@
 risk_map =
-  File.stream!("input.txt")
+  IO.stream(:line)
   |> Stream.with_index()
   |> Enum.map(fn {line, row_num} ->
     line

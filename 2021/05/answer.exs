@@ -5,7 +5,7 @@ get_coords = fn line ->
 end
 
 input =
-  File.stream!("input.txt")
+  IO.stream(:line)
   |> Enum.map(get_coords)
 
 coords_in_line = fn

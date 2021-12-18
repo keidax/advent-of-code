@@ -1,5 +1,5 @@
 input =
-  for line <- File.stream!("input.txt") do
+  for line <- IO.stream(:line) do
     line |> String.trim() |> String.codepoints()
   end
 

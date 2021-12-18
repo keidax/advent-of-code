@@ -1,5 +1,5 @@
 input =
-  File.stream!("input.txt")
+  IO.stream(:line)
   |> Enum.map(&String.trim/1)
 
 [dot_input, instruction_input] =

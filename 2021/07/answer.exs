@@ -1,5 +1,5 @@
 input =
-  File.read!("input.txt")
+  IO.read(:line)
   |> String.trim()
   |> String.split(",")
   |> Enum.map(&String.to_integer/1)

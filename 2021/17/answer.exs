@@ -1,5 +1,5 @@
 line =
-  File.read!("input.txt")
+  IO.read(:line)
   |> String.trim()
 
 [x1, x2, y1, y2] =
