@@ -21,6 +21,12 @@ module AOC
     end
   end
 
+  def self.lines
+    load_input!
+
+    @@input.lines
+  end
+
   def self.input
     load_input!
 
