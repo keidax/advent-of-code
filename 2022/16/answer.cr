@@ -1,3 +1,5 @@
+require "bit_array"
+
 require "../aoc"
 
 AOC.day!(16)
@@ -10,9 +12,7 @@ class Valve
   end
 end
 
-VALVES = {} of String => Valve
-
-AOC.lines.each do |line|
+all_valves = AOC.lines.to_h do |line|
   unless line =~ /Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (.*)$/
     raise "could not parse line '#{line}'"
   end
@@ -21,11 +21,12 @@ AOC.lines.each do |line|
   rate = $2.to_i
   tunnels = $3.split(", ")
 
-  VALVES[name] = Valve.new(rate, tunnels)
+  {name, Valve.new(rate, tunnels)}
 end
 
-important_valve_names = VALVES.keys.select { |name| VALVES[name].flow_rate > 0 }
-valve_keys = important_valve_names.sort
+non_zero_valve_keys = all_valves.keys.select { |name| all_valves[name].flow_rate > 0 }
+valve_keys = (non_zero_valve_keys + ["AA"]).sort
+valves_by_id = valve_keys.map { |name| all_valves[name] }
 
 class Node
   property name : String
@@ -52,7 +53,8 @@ def distance_to_valves(start : String, valves : Hash(String, Valve), goals : Set
     end
 
     if goals.includes?(current_node.name)
-      result[current_node.name] = current_node.distance
+      # Add 1 here to account for the time to open the valve
+      result[current_node.name] = current_node.distance + 1
       goals.delete(current_node.name)
     end
 
@@ -63,97 +65,146 @@ def distance_to_valves(start : String, valves : Hash(String, Valve), goals : Set
   result
 end
 
-key_set = Set.new(valve_keys)
+key_set = Set.new(non_zero_valve_keys)
 
-initial_distances = distance_to_valves("AA", VALVES, key_set.clone)
-map = valve_keys.to_h do |valve_name|
-  distances_from_valve = distance_to_valves(valve_name, VALVES, key_set - [valve_name])
+initial_distances = distance_to_valves("AA", all_valves, key_set.clone).to_h do |valve_name, distance|
+  {valve_keys.index!(valve_name).to_u8, distance}
+end
+map = non_zero_valve_keys.to_h do |valve_name|
+  distances_from_valve = distance_to_valves(valve_name, all_valves, key_set - [valve_name]).to_h do |valve_name, distance|
+    {valve_keys.index!(valve_name).to_u8, distance}
+  end
 
-  {valve_name, distances_from_valve}
+  {valve_keys.index!(valve_name).to_u8, distances_from_valve}
 end
 
-struct Actor
-  property moving_to : String
-  property distance : Int32
+ClosedValves.size = valve_keys.size
 
-  def initialize(@moving_to, @distance)
-  end
-end
+PressureResult.valves = valve_keys.map { |name| all_valves[name] }
+PressureResult.map = map
 
-STATE_CACHE = {} of {Int32, Set(String)} => Int32
+# Represent the open/closed state of all valves in a memory-efficient way
+struct ClosedValves
+  class_property size = 0
 
-def max_release_at_minute(minutes_left, actors : Array(Actor), current_release, map, remaining_nodes : Set(String)) : Int32
-  if minutes_left == 0
-    return current_release
-  end
+  include Enumerable(UInt8)
 
-  actors = actors.map! { |actor| actor.distance -= 1; actor }
-  minutes_left -= 1
+  getter closed : BitArray
 
-  ready_actors, moving_actors = actors.partition { |actor| actor.distance == -1 }
-
-  ready_actors.each do |actor|
-    current_release += minutes_left * VALVES[actor.moving_to].flow_rate
+  def initialize
+    @closed = BitArray.new(@@size, true)
+    # AA, valve id 0, is always considered "open"
+    @closed[0] = false
   end
 
-  if ready_actors.empty?
-    return max_release_at_minute(minutes_left, moving_actors, current_release, map, remaining_nodes)
+  def initialize(@closed)
   end
 
-  if remaining_nodes.empty?
-    if moving_actors.empty?
-      # all nodes are visited
-      return current_release
-    else
-      return max_release_at_minute(minutes_left, moving_actors, current_release, map, remaining_nodes)
+  def inverse
+    inverted = @closed.dup
+    inverted.invert
+    inverted[0] = false
+    self.class.new(inverted)
+  end
+
+  def each
+    @closed.each_with_index do |closed, valve_id|
+      yield valve_id.to_u8 if closed
     end
   end
 
-  if remaining_nodes.size < ready_actors.size
-    # there are fewer nodes than actors left, so we have to try different combinations of actors
-    remaining_nodes.to_a.permutations(remaining_nodes.size).map do |next_nodes|
-      ready_actors.permutations(remaining_nodes.size).map do |actor_group|
-        new_actors = actor_group.zip(next_nodes).map do |actor, next_node|
-          distance_to_next_node = map[actor.moving_to][next_node]
-          actor.moving_to = next_node
-          actor.distance = distance_to_next_node
-          actor
-        end
+  def opened(valve_id)
+    opened = @closed.dup
+    raise "valve id #{valve_id} is already open" unless opened[valve_id]
+    opened[valve_id] = false
+    self.class.new(opened)
+  end
+end
 
-        new_remaining_nodes = remaining_nodes - next_nodes
-        next_actors = moving_actors + new_actors
+# Represent the current state of someone (i.e. you or the elephant) opening valves.
+struct PressureResult
+  class_property valves = [] of Valve
+  class_property map = {} of UInt8 => Hash(UInt8, Int32)
+  class_property cache = Hash(PressureResult, Int32).new { |h, result| h[result] = result.best_pressure }
 
-        max_release_at_minute(minutes_left, next_actors, current_release, map, new_remaining_nodes)
-      end.max
-    end.max
-  else
-    remaining_nodes.to_a.permutations(ready_actors.size).map do |next_nodes|
-      new_actors = ready_actors.zip(next_nodes).map do |actor, next_node|
-        distance_to_next_node = map[actor.moving_to][next_node]
-        actor.moving_to = next_node
-        actor.distance = distance_to_next_node
-        actor
+  def self.best_pressure(valve_id, time_left, closed)
+    @@cache[self.new(valve_id, time_left, closed)]
+  end
+
+  # The valve you are currently located at
+  @current_valve_id : UInt8
+  # How much time is left, in minutes
+  @time_left : Int8
+  # The group of valves that haven't been opened yet
+  @closed : ClosedValves
+
+  def initialize(@current_valve_id, @time_left, @closed)
+    raise "valve must be closed" if !@closed.closed[@current_valve_id]
+
+    if @time_left < 0
+      @time_left = 0
+    end
+  end
+
+  # The most _additional_ pressure you can release by opening valves from this
+  # state. Pressure from already-open valves is not included.
+  def best_pressure : Int32
+    return 0 if @time_left <= 0
+
+    this_valve = @time_left.to_i * @@valves[@current_valve_id].flow_rate
+
+    other_valves_max = 0
+
+    next_closed = @closed.opened(@current_valve_id)
+
+    next_closed.each do |next_valve_id|
+      distance = @@map[@current_valve_id][next_valve_id]
+      next_time = @time_left - distance
+      next if next_time <= 0
+
+      other_valves = self.class.best_pressure(next_valve_id, next_time, next_closed)
+      if other_valves > other_valves_max
+        other_valves_max = other_valves
       end
+    end
 
-      new_remaining_nodes = remaining_nodes - next_nodes
-      next_actors = moving_actors + new_actors
-
-      max_release_at_minute(minutes_left, next_actors, current_release, map, new_remaining_nodes)
-    end.max
+    this_valve + other_valves_max
   end
 end
 
 AOC.part1 do
-  initial_distances.map do |first_node, distance|
-    actors = [Actor.new(first_node, distance)]
-    max_release_at_minute(30, actors, 0, map, key_set - [first_node])
+  closed = ClosedValves.new
+  initial_distances.map do |first_valve_id, distance|
+    PressureResult.best_pressure(first_valve_id.to_u8, 30.to_i8 - distance, closed)
   end.max
 end
 
-# TODO: This is quite slow, figure out some optimizations
 AOC.part2 do
-  initial_distances.to_a.combinations(2).map do |initial_nodes|
-    actors = initial_nodes.map { |first_node, distance| Actor.new(first_node, distance) }
-    max_release_at_minute(26, actors, 0, map, key_set - actors.map(&.moving_to))
+  valve_count = valve_keys.size.to_u8
+  (1..valve_keys.size//2).flat_map do |num_elephant_valves|
+    (1_u8...valve_count).to_a.each_combination(num_elephant_valves).map do |elephant_combo|
+      closed_bits = BitArray.new(valve_count, true)
+      closed_bits[0] = false
+      elephant_combo.each do |elephant_valve_id|
+        closed_bits[elephant_valve_id] = false
+      end
+
+      closed = ClosedValves.new(closed_bits)
+      elephant_closed = closed.inverse
+
+      human_max = closed.max_of do |first_valve_id|
+        distance = initial_distances[first_valve_id]
+
+        PressureResult.best_pressure(first_valve_id, 26.to_i8 - distance, closed)
+      end
+
+      elephant_max = elephant_closed.max_of do |first_valve_id|
+        distance = initial_distances[first_valve_id]
+
+        PressureResult.best_pressure(first_valve_id, 26.to_i8 - distance, elephant_closed)
+      end
+
+      human_max + elephant_max
+    end
   end.max
 end
