@@ -1,4 +1,4 @@
-require "../aoc"
+require "./aoc"
 
 AOC.day!(1)
 

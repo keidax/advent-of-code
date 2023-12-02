@@ -2,13 +2,16 @@ require "http/request"
 require "http/client"
 
 module AOC
-  YEAR       = 2023
-  INPUT_PATH = "input.txt"
+  YEAR = 2023
 
   @@day : Int32 = 0
 
   def self.day!(day : Int32)
     @@day = day
+  end
+
+  def self.input_path
+    "%02d_input.txt" % @@day
   end
 
   @@input_loaded = false
@@ -49,12 +52,11 @@ module AOC
   end
 
   private def self.load_input(day)
-    input_path =
-      if File.exists?(INPUT_PATH)
-        File.read(INPUT_PATH)
-      else
-        download_file(day)
-      end
+    if File.exists?(input_path)
+      File.read(input_path)
+    else
+      download_file(day)
+    end
   end
 
   private def self.download_file(day)
@@ -67,7 +69,11 @@ module AOC
     response = client.exec get_input
     input = response.body
 
-    File.write(INPUT_PATH, input)
+    unless response.status.ok?
+      raise "Error fetching puzzle input: #{input}"
+    end
+
+    File.write(input_path, input)
     input
   end
 
