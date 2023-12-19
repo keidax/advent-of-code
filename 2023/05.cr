@@ -30,10 +30,7 @@ def convert_single_map(value, map)
   value
 end
 
-sections = AOC.lines.slice_after("").map do |section|
-  # clean out the blank lines
-  section.reject("")
-end.to_a
+sections = AOC.line_sections
 
 seeds = sections[0][0].split(" ")[1..].map(&.to_i64)
 maps = sections[1..].map { |s| build_map(s) }

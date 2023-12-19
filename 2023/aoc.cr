@@ -31,6 +31,13 @@ module AOC
     @@input.lines
   end
 
+  def self.line_sections : Array(Array(String))
+    lines.slice_after("").map do |section|
+      # clean out the blank lines
+      section.reject("")
+    end.to_a
+  end
+
   def self.input
     load_input!
 

@@ -2,10 +2,7 @@ require "./aoc"
 
 AOC.day!(13)
 
-mirrors = AOC.lines.slice_after("").map do |section|
-  # clean out the blank lines
-  section.reject("")
-end.to_a
+mirrors = AOC.line_sections
 
 # Find a mirror row that gives a reflection with the given number of smudges
 def find_reflecting_row(mirror, target_mismatch)
