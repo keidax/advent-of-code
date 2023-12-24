@@ -166,6 +166,26 @@ def build_undirected_graph(graph)
   new_graph
 end
 
+def simplify(graph)
+  to_contract = [] of Tile
+  graph.each do |tile, next_tiles|
+    to_contract << tile if next_tiles.size == 2
+  end
+
+  to_contract.each do |t|
+    a, b = graph.delete(t).not_nil!.to_a
+
+    a_tile, a_dist = a
+    b_tile, b_dist = b
+
+    a_t_dist = graph[a_tile].delete(t).not_nil!
+    graph[a_tile][b_tile] = a_t_dist + b_dist
+
+    b_t_dist = graph[b_tile].delete(t).not_nil!
+    graph[b_tile][a_tile] = b_t_dist + a_dist
+  end
+end
+
 def find_longest_path_pt2(graph, target)
   start = {row: 0, col: 1}
   dist = 0
@@ -209,6 +229,6 @@ AOC.part2 do
   graph, target = build_graph(grid)
   graph = build_undirected_graph(graph)
 
-  # This is inefficient, but finishes in about 1 minute
+  simplify(graph)
   find_longest_path_pt2(graph, target)
 end
