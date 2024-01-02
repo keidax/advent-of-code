@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://44x2pvpcrj7d"]
+
+[node name="LocationPoint" type="Polygon2D"]
+scale = Vector2(3, 3)
+color = Color(0, 0.596078, 0.8, 1)
+polygon = PackedVector2Array(0, 2, -2, 0, 0, -2, 2, 0)
