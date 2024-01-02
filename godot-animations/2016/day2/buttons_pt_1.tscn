@@ -1,0 +1,114 @@
+[gd_scene load_steps=3 format=3 uid="uid://drb22vxu5u33m"]
+
+[ext_resource type="Script" path="res://2016/day2/buttons.gd" id="1_54ukg"]
+[ext_resource type="PackedScene" uid="uid://26i5roo85q4g" path="res://2016/day2/keypad_button.tscn" id="2_7e0jp"]
+
+[node name="ButtonsPt1" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 160.0
+offset_bottom = 280.0
+script = ExtResource("1_54ukg")
+
+[node name="Button1" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 80.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="Button2" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 80.0
+grow_vertical = 1
+text = "2"
+
+[node name="Button3" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 80.0
+grow_horizontal = 0
+grow_vertical = 1
+text = "3"
+
+[node name="Button4" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -40.0
+offset_right = 40.0
+offset_bottom = 40.0
+grow_horizontal = 1
+text = "4"
+
+[node name="Button5" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+offset_bottom = 40.0
+text = "5"
+
+[node name="Button6" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+text = "6"
+
+[node name="Button7" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -80.0
+offset_right = 40.0
+grow_horizontal = 1
+grow_vertical = 0
+text = "7"
+
+[node name="Button8" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -80.0
+offset_right = 20.0
+grow_vertical = 0
+text = "8"
+
+[node name="Button9" parent="." instance=ExtResource("2_7e0jp")]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -80.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "9"

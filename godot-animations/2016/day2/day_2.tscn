@@ -1,0 +1,75 @@
+[gd_scene load_steps=5 format=3 uid="uid://cm0e2m8nebvai"]
+
+[ext_resource type="PackedScene" uid="uid://boxpprwbm1mu8" path="res://input.tscn" id="1_0rq4y"]
+[ext_resource type="Script" path="res://2016/day2/day_2.gd" id="1_oscxx"]
+[ext_resource type="PackedScene" uid="uid://drb22vxu5u33m" path="res://2016/day2/buttons_pt_1.tscn" id="3_xyly6"]
+[ext_resource type="PackedScene" uid="uid://gk6gdprheru6" path="res://2016/day2/buttons_pt_2.tscn" id="4_8wc42"]
+
+[node name="Day2" type="CanvasLayer"]
+script = ExtResource("1_oscxx")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.12549, 0, 1)
+
+[node name="ButtonsPt1" parent="." instance=ExtResource("3_xyly6")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -140.0
+offset_right = 80.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ButtonsPt2" parent="." instance=ExtResource("4_8wc42")]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -240.0
+offset_right = 140.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Input" parent="." instance=ExtResource("1_0rq4y")]
+day = 2
+
+[node name="DayLabel" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 147.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 36
+text = "Day 2"
+
+[node name="Part1Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 75.0
+offset_right = 147.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 36
+text = "Part 1: "
+
+[node name="Part2Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 125.0
+offset_right = 147.0
+offset_bottom = 175.0
+theme_override_font_sizes/font_size = 36
+text = "Part 2: "
+
+[connection signal="pressed" from="ButtonsPt1" to="." method="_on_buttons_pt_1_pressed"]
+[connection signal="pressed" from="ButtonsPt2" to="." method="_on_buttons_pt_2_pressed"]
+[connection signal="available" from="Input" to="." method="_on_input_available"]
