@@ -1,0 +1,79 @@
+[gd_scene load_steps=5 format=3 uid="uid://clv6v4dmcx34p"]
+
+[ext_resource type="Script" path="res://2016/day3/day_3.gd" id="1_vfmrr"]
+[ext_resource type="PackedScene" uid="uid://boxpprwbm1mu8" path="res://input.tscn" id="2_wfnci"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_feq0y"]
+distance = 10.0
+
+[sub_resource type="Curve2D" id="Curve2D_xhjh3"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 570, 0)
+}
+point_count = 2
+
+[node name="Day3" type="CanvasLayer"]
+script = ExtResource("1_vfmrr")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.12549, 0, 1)
+
+[node name="TriangleContainer" type="Node2D" parent="."]
+
+[node name="Input" parent="." instance=ExtResource("2_wfnci")]
+day = 3
+
+[node name="DayLabel" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 147.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 36
+text = "Day 3"
+
+[node name="Part1Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 75.0
+offset_right = 147.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 36
+text = "Part 1: "
+
+[node name="Part2Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 125.0
+offset_right = 147.0
+offset_bottom = 175.0
+theme_override_font_sizes/font_size = 36
+text = "Part 2: "
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2(360, 720)
+collision_layer = 4294967295
+collision_mask = 4294967295
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+shape = SubResource("WorldBoundaryShape2D_feq0y")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-360, -99)
+rotation = 1.57079
+shape = SubResource("WorldBoundaryShape2D_feq0y")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(360, -102)
+rotation = -1.57079
+shape = SubResource("WorldBoundaryShape2D_feq0y")
+
+[node name="TrianglePath" type="Path2D" parent="."]
+curve = SubResource("Curve2D_xhjh3")
+
+[node name="TriangleSpawnPoint" type="PathFollow2D" parent="TrianglePath"]
+position = Vector2(150, 0)
+
+[connection signal="available" from="Input" to="." method="_on_input_available"]

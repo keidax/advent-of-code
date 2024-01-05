@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://coxw8di5hfxme"]
+
+[ext_resource type="Script" path="res://2016/day3/rigid_triangle.gd" id="1_7sbh5"]
+
+[node name="RigidTriangle" type="RigidBody2D"]
+collision_priority = 10.0
+center_of_mass_mode = 1
+continuous_cd = 1
+linear_damp = 1.0
+script = ExtResource("1_7sbh5")
+
+[node name="CollisionShape2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(0, 0, 100, 0, 50, 15)
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0, 0.588235, 0.717647, 1)
+polygon = PackedVector2Array(0, 0, 100, 0, 50, 15)
