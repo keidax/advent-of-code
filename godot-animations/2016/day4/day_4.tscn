@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=3 uid="uid://nthtnyifccdc"]
+
+[ext_resource type="Script" path="res://2016/day4/day_4.gd" id="1_apw7s"]
+[ext_resource type="PackedScene" uid="uid://boxpprwbm1mu8" path="res://input.tscn" id="1_v5mnq"]
+
+[node name="Day4" type="CanvasLayer"]
+script = ExtResource("1_apw7s")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.12549, 0, 1)
+
+[node name="Input" parent="." instance=ExtResource("1_v5mnq")]
+day = 4
+
+[node name="DayLabel" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 147.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 36
+text = "Day 4"
+
+[node name="Part1Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 75.0
+offset_right = 147.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 36
+text = "Part 1: "
+
+[node name="Part2Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 125.0
+offset_right = 147.0
+offset_bottom = 175.0
+theme_override_font_sizes/font_size = 36
+text = "Part 2: "
+
+[connection signal="available" from="Input" to="." method="_on_input_available"]

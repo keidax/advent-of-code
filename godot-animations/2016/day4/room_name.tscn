@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://xkv6obwbt4b5"]
+
+[ext_resource type="Script" path="res://2016/day4/room_name.gd" id="1_g836h"]
+
+[sub_resource type="SystemFont" id="SystemFont_uloop"]
+font_names = PackedStringArray("Monospace")
+subpixel_positioning = 0
+
+[sub_resource type="Theme" id="Theme_oit7g"]
+default_font = SubResource("SystemFont_uloop")
+
+[node name="RoomName" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+theme = SubResource("Theme_oit7g")
+script = ExtResource("1_g836h")
+text = "qzmt-zixmtkozy-ivhz-343[zimth]"
