@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dpuxpvjarjr22"]
+
+[ext_resource type="Script" path="res://2016/day6/LetterCounter.gd" id="1_16ymy"]
+
+[sub_resource type="SystemFont" id="SystemFont_3lg8b"]
+font_names = PackedStringArray("Monospace")
+subpixel_positioning = 0
+
+[sub_resource type="Theme" id="Theme_fs3ff"]
+default_font = SubResource("SystemFont_3lg8b")
+
+[node name="LetterCounter" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -680.0
+offset_bottom = -420.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+theme = SubResource("Theme_fs3ff")
+script = ExtResource("1_16ymy")

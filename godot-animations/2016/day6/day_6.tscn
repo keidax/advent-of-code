@@ -1,0 +1,85 @@
+[gd_scene load_steps=4 format=3 uid="uid://bvl2q22jjy6i2"]
+
+[ext_resource type="Script" path="res://2016/day6/day_6.gd" id="1_0xbph"]
+[ext_resource type="PackedScene" uid="uid://boxpprwbm1mu8" path="res://input.tscn" id="2_t5wyp"]
+[ext_resource type="PackedScene" uid="uid://dpuxpvjarjr22" path="res://2016/day6/letter_counter.tscn" id="3_qkhhp"]
+
+[node name="Day6" type="CanvasLayer"]
+script = ExtResource("1_0xbph")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.12549, 0, 1)
+
+[node name="Input" parent="." instance=ExtResource("2_t5wyp")]
+day = 6
+
+[node name="DayLabel" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 147.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 36
+text = "Day 6"
+
+[node name="Part1Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 75.0
+offset_right = 147.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 36
+text = "Part 1: "
+
+[node name="Part2Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 125.0
+offset_right = 147.0
+offset_bottom = 175.0
+theme_override_font_sizes/font_size = 36
+text = "Part 2: "
+
+[node name="BoxContainer" type="BoxContainer" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_right = 250.0
+offset_bottom = 40.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="LetterCounter0" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+
+[node name="LetterCounter1" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+
+[node name="LetterCounter2" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+theme = null
+
+[node name="LetterCounter3" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+theme = null
+
+[node name="LetterCounter4" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+theme = null
+
+[node name="LetterCounter5" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+theme = null
+
+[node name="LetterCounter6" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+theme = null
+
+[node name="LetterCounter7" parent="BoxContainer" instance=ExtResource("3_qkhhp")]
+layout_mode = 2
+theme = null
+
+[connection signal="available" from="Input" to="." method="_on_input_available"]
