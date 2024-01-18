@@ -26,6 +26,14 @@ func download_data():
 	var url = "https://adventofcode.com/%d/day/%d/input" % [year, day]
 	var headers = ["Cookie: session=%s" % session_token]
 	
-	$HTTPRequest.download_file = file_path
 	var error = $HTTPRequest.request(url, headers)
 	assert(error == OK, error_string(error))
+
+func _on_request_completed(result, response_code, headers, body):
+	assert(result == HTTPRequest.RESULT_SUCCESS)
+	
+	if response_code == 200:
+		var file = FileAccess.open(file_path, FileAccess.WRITE)
+		file.store_buffer(body)
+	else:
+		assert(response_code == 200, "Puzzle download failed: " + body.get_string_from_utf8())
