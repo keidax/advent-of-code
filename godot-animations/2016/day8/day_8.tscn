@@ -1,0 +1,65 @@
+[gd_scene load_steps=5 format=3 uid="uid://dhpb2tc88wk5h"]
+
+[ext_resource type="Script" path="res://2016/day8/day_8.gd" id="1_mqabw"]
+[ext_resource type="PackedScene" uid="uid://boxpprwbm1mu8" path="res://input.tscn" id="2_21i6i"]
+[ext_resource type="PackedScene" uid="uid://cayngcru2hc0w" path="res://2016/day8/DisplayScreen.tscn" id="2_qjblu"]
+[ext_resource type="PackedScene" uid="uid://moo4asle4i6v" path="res://2016/day8/DisplayData.tscn" id="3_2ns7r"]
+
+[node name="Day8" type="CanvasLayer"]
+script = ExtResource("1_mqabw")
+
+[node name="DisplayData" parent="." instance=ExtResource("3_2ns7r")]
+grid_size = Vector2i(50, 6)
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.12549, 0, 1)
+
+[node name="Input" parent="." instance=ExtResource("2_21i6i")]
+day = 8
+
+[node name="DayLabel" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 147.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 36
+text = "Day 8"
+
+[node name="Part1Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 75.0
+offset_right = 147.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 36
+text = "Part 1: "
+
+[node name="Part2Label" type="Label" parent="."]
+visible = false
+offset_left = 25.0
+offset_top = 125.0
+offset_right = 147.0
+offset_bottom = 175.0
+theme_override_font_sizes/font_size = 36
+text = "Part 2: "
+
+[node name="DisplayScreen" parent="." instance=ExtResource("2_qjblu")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -255.0
+offset_top = -35.0
+offset_right = 255.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="changed" from="DisplayData" to="." method="_on_display_data_changed"]
+[connection signal="changed" from="DisplayData" to="DisplayScreen" method="_on_display_data_changed"]
+[connection signal="available" from="Input" to="." method="_on_input_available"]

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://moo4asle4i6v"]
+
+[ext_resource type="Script" path="res://2016/day8/DisplayData.gd" id="1_prkab"]
+
+[node name="DisplayData" type="Node"]
+script = ExtResource("1_prkab")

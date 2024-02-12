@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cayngcru2hc0w"]
+
+[ext_resource type="Theme" uid="uid://dfnwrw7r2al7n" path="res://2016/day8/DisplayScreen.tres" id="1_nb72w"]
+[ext_resource type="Script" path="res://2016/day8/DisplayScreen.gd" id="2_8sm48"]
+
+[node name="DisplayScreen" type="Panel"]
+offset_left = 30.0
+offset_top = 30.0
+offset_right = 540.0
+offset_bottom = 100.0
+theme = ExtResource("1_nb72w")
+script = ExtResource("2_8sm48")
