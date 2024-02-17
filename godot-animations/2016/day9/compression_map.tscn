@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://b82pj3a32v5il"]
+
+[ext_resource type="Script" path="res://2016/day9/compression_map.gd" id="1_3lpyt"]
+
+[node name="CompressionMap" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 500.0
+offset_bottom = 720.0
+script = ExtResource("1_3lpyt")

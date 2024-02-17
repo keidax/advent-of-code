@@ -1,0 +1,58 @@
+[gd_scene load_steps=4 format=3 uid="uid://c4k2uajkryhfx"]
+
+[ext_resource type="Script" path="res://2016/day9/day_9.gd" id="1_54r2m"]
+[ext_resource type="PackedScene" uid="uid://boxpprwbm1mu8" path="res://input.tscn" id="2_h4lwr"]
+[ext_resource type="PackedScene" uid="uid://b82pj3a32v5il" path="res://2016/day9/compression_map.tscn" id="3_pwsgm"]
+
+[node name="Day9" type="CanvasLayer"]
+script = ExtResource("1_54r2m")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.12549, 0, 1)
+
+[node name="Input" parent="." instance=ExtResource("2_h4lwr")]
+day = 9
+
+[node name="CompressionMap" parent="." instance=ExtResource("3_pwsgm")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -160.0
+offset_right = 340.0
+offset_bottom = 340.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DayLabel" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 147.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 36
+text = "Day 9"
+
+[node name="Part1Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 75.0
+offset_right = 147.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 36
+text = "Part 1: "
+
+[node name="Part2Label" type="Label" parent="."]
+offset_left = 25.0
+offset_top = 125.0
+offset_right = 147.0
+offset_bottom = 175.0
+theme_override_font_sizes/font_size = 36
+text = "Part 2: "
+
+[connection signal="available" from="Input" to="." method="_on_input_available"]
