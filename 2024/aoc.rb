@@ -1,5 +1,6 @@
 require "net/http"
 require "cgi/cookie"
+require "forwardable"
 
 module AOC
   YEAR = 2024
@@ -33,15 +34,8 @@ module AOC
       @input ||= load_input
     end
 
-    def each_line
-      input.each_line do |line|
-        yield line
-      end
-    end
-
-    def lines
-      input.lines
-    end
+    extend Forwardable
+    def_delegators :input, :each_line, :lines, :scan
 
     private
 
