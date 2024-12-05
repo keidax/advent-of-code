@@ -37,6 +37,13 @@ module AOC
     extend Forwardable
     def_delegators :input, :each_line, :lines, :scan
 
+    def line_sections
+      lines(chomp: true).slice_after("").map do |section|
+        # clean out the blank lines
+        section.reject { _1 == "" }
+      end.to_a
+    end
+
     private
 
     def load_input
