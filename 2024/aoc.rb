@@ -44,6 +44,11 @@ module AOC
       end.to_a
     end
 
+    def grid_bounds
+      grid_lines = lines(chomp: true)
+      [grid_lines.size, grid_lines.last.size]
+    end
+
     private
 
     def load_input
