@@ -1,5 +1,7 @@
 require_relative "aoc"
 
+require "fast_containers"
+
 def adjacent_spaces(pos, grid)
   row, col = pos
   adjacent = []
@@ -97,7 +99,7 @@ TURN_COST = 1000
 def build_scores(map, start, finish)
   distance = {}
   directions = [:up, :down, :left, :right]
-  unvisited = []
+  unvisited = FastContainers::PriorityQueue.new(:min)
 
   map.each do |pos, _|
     directions.each do |dir|
@@ -108,7 +110,7 @@ def build_scores(map, start, finish)
   end
 
   distance[[*start, :right]] = 0
-  unvisited << [*start, :right]
+  unvisited.push([*start, :right], 0)
 
   targets = [
     [*finish, :up],
@@ -119,13 +121,16 @@ def build_scores(map, start, finish)
 
   remaining_targets = targets.dup
 
-  unvisited.sort_by! { distance[_1] }
-
   prev = {}
 
   while remaining_targets.size > 0
-    coord = unvisited.shift
+    priority_dist, coord = unvisited.top_key, unvisited.pop
     dist = distance[coord]
+
+    if priority_dist > dist
+      # we already visited this coord
+      next
+    end
 
     row, col, dir = coord
 
@@ -133,7 +138,8 @@ def build_scores(map, start, finish)
       ahead_coord = [*next_pos, dir]
       if distance[ahead_coord] > (dist + STEP_COST)
         distance[ahead_coord] = dist + STEP_COST
-        resort(unvisited, ahead_coord, distance)
+
+        unvisited.push(ahead_coord, dist + STEP_COST)
 
         prev[ahead_coord] = [coord]
       elsif distance[ahead_coord] == (dist + STEP_COST)
@@ -144,7 +150,8 @@ def build_scores(map, start, finish)
     right_coord = [row, col, right_turn(dir)]
     if distance[right_coord] > (dist + TURN_COST)
       distance[right_coord] = dist + TURN_COST
-      resort(unvisited, right_coord, distance)
+
+      unvisited.push(right_coord, dist + TURN_COST)
 
       prev[right_coord] = [coord]
     elsif distance[right_coord] == (dist + TURN_COST)
@@ -154,7 +161,8 @@ def build_scores(map, start, finish)
     left_coord = [row, col, left_turn(dir)]
     if distance[left_coord] > (dist + TURN_COST)
       distance[left_coord] = dist + TURN_COST
-      resort(unvisited, left_coord, distance)
+
+      unvisited.push(left_coord, dist + TURN_COST)
 
       prev[left_coord] = [coord]
     elsif distance[left_coord] == (dist + TURN_COST)
@@ -165,29 +173,6 @@ def build_scores(map, start, finish)
   end
 
   [distance, prev]
-end
-
-# Using an array for unvisited is the bottleneck here -- ideally should
-# be a min_heap
-def resort(unvisited, coord, distance)
-  new_dist = distance[coord]
-  insert_idx = -1
-  (0...unvisited.size).each do |i|
-    if distance[unvisited[i]] >= new_dist
-      insert_idx = i
-      break
-    end
-  end
-
-  if insert_idx == -1
-    insert_idx = unvisited.size
-  end
-  unvisited.insert(insert_idx, coord)
-
-  old_idx = unvisited.rindex(coord)
-  if old_idx > insert_idx
-    unvisited.delete_at(old_idx)
-  end
 end
 
 def count_path_size(start, finish, prev)
