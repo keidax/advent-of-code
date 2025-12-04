@@ -1,6 +1,6 @@
-const fs = require('node:fs/promises');
-const https = require('node:https');
-const process = require('node:process');
+import fs from 'node:fs/promises';
+import https from 'node:https';
+import process from 'node:process';
 
 async function getInput(year, day) {
   const formattedDay = String(day).padStart(2, '0');
@@ -75,4 +75,4 @@ function part2(result) {
   part(2, result);
 }
 
-module.exports = { getInput, getInputLines, part1, part2 };
+export { getInput, getInputLines, part1, part2 };
