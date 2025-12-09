@@ -94,3 +94,4 @@ while (beamStarts.size > 0) {
 
 part1(activatedSplitters.values().reduce((acc, yVals) => acc + yVals.size, 0));
 part2(totalPaths);
+console.assert(totalPaths < Number.MAX_SAFE_INTEGER, 'answer is too large');

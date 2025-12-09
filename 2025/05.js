@@ -12,9 +12,7 @@ const ingredientIds = database
   .map((ingredient) => Number(ingredient));
 
 for (const [min, max] of freshRanges) {
-  if (max > Number.MAX_SAFE_INTEGER) {
-    console.warn('freshness range cannot be safely checked');
-  }
+  console.assert(max < Number.MAX_SAFE_INTEGER, 'range is too large');
 }
 
 let freshCount = 0;
@@ -66,8 +64,6 @@ for (const range of freshRanges) {
 let freshIdCount = 0;
 for (const [min, max] of mergedRanges) {
   freshIdCount += max - min + 1;
-  if (freshIdCount >= Number.MAX_SAFE_INTEGER) {
-    console.warn('id count cannot be safely checked');
-  }
+  console.assert(freshIdCount < Number.MAX_SAFE_INTEGER, 'answer is too large');
 }
 part2(freshIdCount);
